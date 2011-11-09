@@ -12,7 +12,7 @@ class TestProgram(unittest.TestCase):
                 self.handled_exception = 'Error while trying to read file: %s\n'
                 self.not_a_file = 'File %s does not exist or is not a regular file\n'
                 self.line_7_empty = 'Line 7 in %s is empty\n'
-                self.line_too_long = 'Line 7 of %s too long to store in memory available to this progra\n'
+                self.line_too_long = 'Line 7 of %s too long to store in memory available to this program\n'
                 if os.path.exists(self.target):
                         if os.path.isdir(self.target):
                                 os.rmdir(self.target)
