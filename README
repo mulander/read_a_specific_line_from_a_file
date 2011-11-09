@@ -1,0 +1,32 @@
+* About
+Ada solution for rosettacode.org Read_a_specific_line_from_a_file problem
+http://rosettacode.org/wiki/Read_a_specific_line_from_a_file
+
+Code in this repository is Ada 2005 and should be compiled with gnatmake -gnat2005
+
+* Task description
+Some languages have special semantics for obtaining a known line number from a file. The task is to demonstrate how to obtain the contents of a specific line within a file. For the purpose of this task demonstrate how to the contents of the seventh line of a file can be obtained, and store this in a variable or in memory (for potential future use within the program if the code were to become embedded). If the file does not contain seven lines, or the seventh line is empty, or too big to be retrieved, output an appropriate message. If no special semantics are available for obtaining the required line, it is permissible to read line by line. Note that empty lines are considered and should still be counted. Note that for functional languages or languages without variables or storage, it is permissible to output the extracted data to standard output.
+
+* Requirements
+Based on the task description the following requirements were identified
+- Display a specific message for a file having fewer than 7 lines
+- Display a specific message if the 7th line is empty
+- Display a specific message if the 7th line is too big to be retrieved and stored in memory
+- Acquire the 7th line of a file, using built-in language features/standard libraries if accessible
+- Store the retrieved line in a variable/memory location
+
+The following undefined behavior was identified and addressed
+- The task description does not define an empty line. The program assumes that an empty line contains only a line break character. A line containing whitespace (' ', '\t') is not considered empty.
+- Things considered an error in execution are printed out to stderr
+- In case of an encountered error the return code of the program is changed to Failure (1)
+
+In order to ease testing - the program expects the file name to be provided as the first argument on the command line.
+
+Additional checks are performed by the program
+- Tests if the file name was provided on the command line
+- Tests if the provided file exists
+- Tests if the file is an ordinary file (not a directory, symbolic link etc)
+
+* Tests
+Several test cases were created to verify the corectness of the produced binary. They can be found in the tests directory.
+The t_all.py script runs all the test cases.
