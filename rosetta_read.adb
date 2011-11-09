@@ -37,19 +37,35 @@ begin
                      Mode => Ada.Text_IO.In_File,
                      Name => Ada.Command_Line.Argument (Number => 1));
    Ada.Text_IO.Set_Line (File, 7);
-   declare
-      Stored_Line : constant String := Ada.Text_IO.Get_Line (File);
+
    begin
-      -- We assume that lines containing
-      -- only whitespace are *not* empty.
-      if Stored_Line = "" then
-         Ada.Text_IO.Put_Line ("Line 7 in " &
+
+      declare
+         Stored_Line : constant String := Ada.Text_IO.Get_Line (File);
+      begin
+         -- We assume that lines containing
+         -- only whitespace are *not* empty.
+         if Stored_Line = "" then
+            Ada.Text_IO.Put_Line ("Line 7 in " &
+                                    Ada.Command_Line.Argument (Number => 1) &
+                                    " is empty");
+         else
+            Ada.Text_IO.Put_Line (Stored_Line);
+         end if;
+      end;
+   exception
+      when Standard.Storage_Error =>
+         Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
+                               Item => "Line 7 of " &
                                  Ada.Command_Line.Argument (Number => 1) &
-                                 " is empty");
-      else
-         Ada.Text_IO.Put_Line (Stored_Line);
-      end if;
+                                 " too long to store in memory available to this program");
+         if Ada.Text_IO.Is_Open (File) then
+            Ada.Text_IO.Close (File);
+         end if;
+         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+         return;
    end;
+
    Ada.Text_IO.Close (File);
 exception
    when Ada.IO_Exceptions.End_Error =>
@@ -59,6 +75,7 @@ exception
       if Ada.Text_IO.Is_Open (File) then
          Ada.Text_IO.Close (File);
       end if;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
    when others =>
       Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
                             Item => "Error while trying to read file: " &
@@ -66,4 +83,5 @@ exception
       if Ada.Text_IO.Is_Open (File) then
          Ada.Text_IO.Close (File);
       end if;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 end Rosetta_Read;
