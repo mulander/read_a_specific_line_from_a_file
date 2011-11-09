@@ -1,17 +1,18 @@
 with Ada.Text_IO;
-with Ada.Strings.Unbounded;
 
 procedure Read
 is
-   package TIO renames Ada.Text_IO;
-   package US renames Ada.Strings.Unbounded; -- this is line 7
-
-   File : TIO.File_Type;
-   Stored_Line : US.Unbounded_String;
+   File : Ada.Text_IO.File_Type;
 begin
-   TIO.Open (File, Mode => Ada.Text_IO.In_File, Name => "read.adb");
-   TIO.Set_Line (File, 7);
-   Stored_Line := US.To_Unbounded_String (TIO.Get_Line (File));
-   TIO.Put_Line ( US.To_String (Stored_Line));
-   TIO.Close (File);
+   Ada.Text_IO.Open (File, Mode => Ada.Text_IO.In_File, Name => "read.adb"); -- line 7
+   Ada.Text_IO.Set_Line (File, 7);
+   declare
+      Stored_Line : String := Ada.Text_IO.Get_Line (File);
+   begin
+      Ada.Text_IO.Put_Line (Stored_Line);
+   end;
+   Ada.Text_IO.Close (File);
+exception
+   when others =>
+      Ada.Text_IO.Put_Line ("Error while reading file!");
 end Read;
