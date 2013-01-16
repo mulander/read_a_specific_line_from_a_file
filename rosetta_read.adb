@@ -1,87 +1,54 @@
-with Ada.Text_IO;
-with Ada.Directories;
-with Ada.IO_Exceptions;
-with Ada.Command_Line;
+with Ada.Command_Line,
+     Ada.Text_IO;
 
-procedure Rosetta_Read
-is
-   File : Ada.Text_IO.File_Type;
+procedure Rosetta_Read is
+   use Ada.Command_Line, Ada.Text_IO;
+
+   Source : File_Type;
 begin
 
-   if Ada.Command_Line.Argument_Count = 0 then
-      Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
-                            Item => "Usage: " &
-                              Ada.Command_Line.Command_Name &
-                              " file_name");
-      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+   if Argument_Count /= 1 then
+      Put_Line (File => Standard_Error,
+                Item => "Usage: " & Command_Name & " file_name");
+      Set_Exit_Status (Failure);
       return;
    end if;
 
-   -- Make sure the target exists and is a file (could be a directory etc.)
    declare
-      use Ada.Command_Line; -- Argument, Set_Exit_Status, Failure
-      use Ada.Directories; -- Exists, Kind
+      File_Name : String renames Argument (Number => 1);
    begin
-      if not Exists( Argument (Number => 1))
-        or else not (Kind (Argument (Number => 1)) = Ordinary_File) then
-         Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
-                               Item => "File " &
-                                 Argument (Number => 1) &
-                                 " does not exist or is not a regular file");
+      Open (File => Source,
+            Mode => In_File,
+            Name => File_Name);
+   exception
+      when others =>
+         Put_Line (File => Standard_Error,
+                   Item => "Can not open '" & File_Name & "'.");
          Set_Exit_Status (Failure);
          return;
-   end if;
    end;
 
-   Ada.Text_IO.Open (File,
-                     Mode => Ada.Text_IO.In_File,
-                     Name => Ada.Command_Line.Argument (Number => 1));
-   Ada.Text_IO.Set_Line (File, 7);
+   Set_Line (File => Source,
+             To   => 7);
 
+   declare
+      Line_7 : constant String := Get_Line (File => Source);
    begin
-
-      declare
-         Stored_Line : constant String := Ada.Text_IO.Get_Line (File);
-      begin
-         -- We assume that lines containing
-         -- only whitespace are *not* empty.
-         if Stored_Line = "" then
-            Ada.Text_IO.Put_Line ("Line 7 in " &
-                                    Ada.Command_Line.Argument (Number => 1) &
-                                    " is empty");
-         else
-            Ada.Text_IO.Put_Line (Stored_Line);
-         end if;
-      end;
-   exception
-      when Standard.Storage_Error =>
-         Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
-                               Item => "Line 7 of " &
-                                 Ada.Command_Line.Argument (Number => 1) &
-                                 " too long to store in memory available to this program");
-         if Ada.Text_IO.Is_Open (File) then
-            Ada.Text_IO.Close (File);
-         end if;
-         Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-         return;
+      if Line_7'Length = 0 then
+         Put_Line ("Line 7 is empty.");
+      else
+         Put_Line (Line_7);
+      end if;
    end;
-
-   Ada.Text_IO.Close (File);
 exception
-   when Ada.IO_Exceptions.End_Error =>
-      Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
-                            Item => Ada.Command_Line.Argument (Number => 1) &
-                              " has fewer than 7 lines");
-      if Ada.Text_IO.Is_Open (File) then
-         Ada.Text_IO.Close (File);
-      end if;
-      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
-   when others =>
-      Ada.Text_IO.Put_Line (File => Ada.Text_IO.Standard_Error,
-                            Item => "Error while trying to read file: " &
-                           Ada.Command_Line.Argument (Number => 1));
-      if Ada.Text_IO.Is_Open (File) then
-         Ada.Text_IO.Close (File);
-      end if;
-      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
+   when End_Error =>
+      Put_Line (File => Standard_Error,
+                Item => "The file contains fewer than 7 lines.");
+      Set_Exit_Status (Failure);
+      return;
+   when Storage_Error =>
+      Put_Line (File => Standard_Error,
+                Item => "Line 7 is too long to load.");
+      Set_Exit_Status (Failure);
+      return;
 end Rosetta_Read;
