@@ -1,0 +1,4 @@
+*.ali
+*.o
+
+rosetta_read
